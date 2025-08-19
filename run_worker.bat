@@ -1,0 +1,3 @@
+@echo off
+echo Starting Celery Worker...
+celery -A app.workers.tasks worker --loglevel=info --pool=solo
