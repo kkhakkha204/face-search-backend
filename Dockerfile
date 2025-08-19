@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install system dependencies for OpenCV and MediaPipe
+# Install essential system dependencies for OpenCV and MediaPipe
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-dev \
     libglib2.0-0 \
@@ -8,18 +8,7 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libgtk-3-0 \
-    libgcc-s1 \
-    libstdc++6 \
     ffmpeg \
-    libgstreamer1.0-0 \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav \
-    gstreamer1.0-doc \
-    gstreamer1.0-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
