@@ -9,7 +9,8 @@ from app.services.face_service import face_service
 from app.workers.tasks import process_image_task
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/api/images", tags=["images"])
+# Remove prefix here since it's added in main.py
+router = APIRouter(tags=["images"])
 
 class ImageResponse(BaseModel):
     id: int
@@ -22,7 +23,7 @@ class SearchResponse(BaseModel):
     images: List[ImageResponse]
     total: int
 
-@router.post("/upload")
+@router.post("/images/upload")
 async def upload_images(
     files: List[UploadFile] = File(...),
     db: Session = Depends(get_db)
@@ -60,7 +61,7 @@ async def upload_images(
     
     return {"uploaded": uploaded}
 
-@router.post("/search")
+@router.post("/images/search")
 async def search_by_face(
     file: UploadFile = File(...),
     tolerance: float = Query(0.4, ge=0.1, le=1.0),  # Giảm tolerance mặc định
@@ -134,7 +135,7 @@ async def search_by_face(
     
     return SearchResponse(images=[], total=0)
 
-@router.get("/all")
+@router.get("/images/all")
 async def get_all_images(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
@@ -161,7 +162,7 @@ async def get_all_images(
         "limit": limit
     }
 
-@router.get("/stats")
+@router.get("/images/stats")
 async def get_stats(db: Session = Depends(get_db)):
     """Get statistics"""
     total_images = db.query(EventImage).count()
