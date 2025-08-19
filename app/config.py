@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     api_port: int = 8000
     
     # CORS - thêm cho deployment
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = "https://face-search-frontend.vercel.app/"
     
     # Face recognition settings
     face_tolerance: float = 0.6
