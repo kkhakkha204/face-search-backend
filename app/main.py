@@ -13,8 +13,8 @@ app.add_middleware(
     allow_origins=[
         settings.frontend_url,
         "http://localhost:3000",  # Next.js dev server
-        "https://*.vercel.app",   # Vercel deployments
-        "https://vercel.app",
+        "https://face-search-frontend.vercel.app/",   # Vercel deployments
+        "https://face-search-frontend.vercel.app/",
     ],
     allow_credentials=True,
     allow_methods=["*"],
