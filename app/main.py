@@ -11,10 +11,11 @@ app = FastAPI(title="Event Images API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://face-search-frontend.vercel.app",  # Exact Vercel URL
         settings.frontend_url,
         "http://localhost:3000",  # Next.js dev server
-        "https://face-search-frontend.vercel.app/",   # Vercel deployments
-        "https://face-search-frontend.vercel.app/",
+        "https://localhost:3000",
+        "*"  # Allow all origins temporarily for debugging
     ],
     allow_credentials=True,
     allow_methods=["*"],
