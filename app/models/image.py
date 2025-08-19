@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON
 from sqlalchemy.sql import func
-from pgvector.sqlalchemy import Vector
 from app.database import Base
 
 class EventImage(Base):
@@ -22,5 +21,5 @@ class FaceVector(Base):
     id = Column(Integer, primary_key=True, index=True)
     image_id = Column(Integer, index=True)
     face_index = Column(Integer)  # Index of face in the image
-    encoding = Column(Vector(128))  # face_recognition uses 128-dimensional vectors
+    encoding = Column(JSON)  # Changed from Vector(128) to JSON for Railway compatibility
     created_at = Column(DateTime(timezone=True), server_default=func.now())

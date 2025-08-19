@@ -10,16 +10,6 @@ def init_database():
         # Test connection first
         with engine.connect() as conn:
             print("✅ Database connection successful!")
-            
-            # Create vector extension if not exists
-            print("📦 Creating vector extension...")
-            try:
-                conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-                conn.commit()
-                print("✅ Vector extension created successfully!")
-            except Exception as e:
-                print(f"⚠️  Vector extension warning: {e}")
-                # Continue anyway, might already exist
         
         print("📋 Creating database tables...")
         Base.metadata.create_all(bind=engine)
