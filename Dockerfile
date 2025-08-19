@@ -27,13 +27,5 @@ RUN mkdir -p uploads temp
 # Expose port
 EXPOSE 8000
 
-# Create startup script
-RUN echo '#!/bin/bash\n\
-echo "Initializing database..."\n\
-python init_db.py\n\
-echo "Starting application..."\n\
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000\n\
-' > /app/start.sh && chmod +x /app/start.sh
-
 # Start command
-CMD ["/app/start.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
