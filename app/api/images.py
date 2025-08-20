@@ -35,7 +35,7 @@ async def upload_images(
         # Read file data
         file_data = await file.read()
         
-        # Upload to MinIO
+        # Upload to storage
         image_path = storage_service.upload_image(file_data, file.filename)
         thumbnail_path = storage_service.create_thumbnail(file_data, file.filename)
         
@@ -50,13 +50,46 @@ async def upload_images(
         db.commit()
         db.refresh(db_image)
         
-        # Queue for face processing
-        process_image_task.delay(db_image.id, file_data.hex())
+        # Process faces immediately (SYNC) for debugging
+        try:
+            print(f"🔍 Processing faces for image: {file.filename}")
+            
+            # Extract face encodings
+            encodings = face_service.extract_face_encodings(file_data)
+            print(f"📊 Found {len(encodings)} face encodings")
+            
+            if encodings:
+                # Save face vectors
+                for i, encoding in enumerate(encodings):
+                    print(f"💾 Saving face vector {i+1}/{len(encodings)}")
+                    face_vector = FaceVector(
+                        image_id=db_image.id,
+                        face_index=i,
+                        encoding=encoding.tolist()  # Convert numpy array to list
+                    )
+                    db.add(face_vector)
+                
+                # Update face count
+                db_image.face_count = len(encodings)
+                db.commit()
+                
+                status = f"processed - {len(encodings)} faces found"
+                print(f"✅ Successfully processed {len(encodings)} faces")
+            else:
+                status = "processed - no faces found"
+                print("⚠️  No faces detected in image")
+                
+        except Exception as e:
+            print(f"❌ Face processing error: {e}")
+            import traceback
+            traceback.print_exc()
+            status = f"processing failed: {str(e)}"
         
         uploaded.append({
             "id": db_image.id,
             "filename": file.filename,
-            "status": "processing"
+            "status": status,
+            "face_count": db_image.face_count
         })
     
     return {"uploaded": uploaded}
@@ -173,4 +206,35 @@ async def get_stats(db: Session = Depends(get_db)):
         "total_images": total_images,
         "total_faces": total_faces,
         "images_with_faces": images_with_faces
+    }
+
+@router.get("/images/debug")
+async def debug_info(db: Session = Depends(get_db)):
+    """Debug endpoint to check processing"""
+    # Get recent images
+    recent_images = db.query(EventImage).order_by(EventImage.id.desc()).limit(5).all()
+    
+    # Get face vectors count
+    face_vectors = db.query(FaceVector).all()
+    
+    return {
+        "recent_images": [
+            {
+                "id": img.id,
+                "filename": img.filename,
+                "face_count": img.face_count,
+                "minio_path": img.minio_path
+            }
+            for img in recent_images
+        ],
+        "total_face_vectors": len(face_vectors),
+        "face_vectors_sample": [
+            {
+                "id": fv.id,
+                "image_id": fv.image_id,
+                "face_index": fv.face_index,
+                "encoding_length": len(fv.encoding) if fv.encoding else 0
+            }
+            for fv in face_vectors[:5]
+        ]
     }
